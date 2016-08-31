@@ -13,6 +13,7 @@ namespace MemoryProfilerWindow
     public class TreeMapView
     {
         CrawledMemorySnapshot _unpackedCrawl;
+        HashSet<int> _newlyAdded;
         private ZoomArea _ZoomArea;
         private Dictionary<string, Group> _groups = new Dictionary<string, Group>();
         private List<Item> _items = new List<Item>();
@@ -27,7 +28,13 @@ namespace MemoryProfilerWindow
 
         public void Setup(MemoryProfilerWindow hostWindow, CrawledMemorySnapshot _unpackedCrawl)
         {
+            Setup(hostWindow, _unpackedCrawl, null);
+        }
+
+        public void Setup(MemoryProfilerWindow hostWindow, CrawledMemorySnapshot _unpackedCrawl, HashSet<int> newlyAdded)
+        {
             this._unpackedCrawl = _unpackedCrawl;
+            this._newlyAdded = newlyAdded;
             this._hostWindow = hostWindow;
 
             _ZoomArea = new ZoomArea(true)
@@ -50,8 +57,9 @@ namespace MemoryProfilerWindow
         {
             if (_hostWindow == null)
                 return;
-            
-            Rect r = new Rect(0f, 25f, _hostWindow.position.width - _hostWindow._inspector.width, _hostWindow.position.height - 25f);
+
+            float topSpace = _hostWindow.TopButtonsVerticalSpaces;
+            Rect r = new Rect(0f, topSpace, _hostWindow.position.width - _hostWindow._inspector.width, _hostWindow.position.height - topSpace);
 
             _ZoomArea.rect = r;
             _ZoomArea.BeginViewGUI();
@@ -144,6 +152,16 @@ namespace MemoryProfilerWindow
                 }
 
                 Item item = new Item(thingInMemory, _groups[groupName]);
+
+                if (_newlyAdded != null)
+                {
+                    var n = thingInMemory as NativeUnityEngineObject;
+                    if (n != null)
+                    {
+                        item._isNewlyAdded = _newlyAdded.Contains(n.instanceID);
+                    }
+                }
+
                 _items.Add(item);
                 _groups[groupName]._items.Add(item);
             }

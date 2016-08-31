@@ -16,6 +16,8 @@ namespace Assets.Editor.Treemap
         public Rect _position;
         public int _index;
 
+        public bool _isNewlyAdded = false;
+
         public ThingInMemory _thingInMemory;
 
         public int memorySize { get { return _thingInMemory.size; } }
@@ -35,6 +37,11 @@ namespace Assets.Editor.Treemap
 
         public Color GetColor()
         {
+            if (_isNewlyAdded)
+            {
+                return Color.white;
+            }
+
             return _group.color;
         }
 

@@ -14,7 +14,7 @@ using System.IO;
 
 namespace MemoryProfilerWindow
 {
-    public class MemoryProfilerWindow : EditorWindow
+    public partial class MemoryProfilerWindow : EditorWindow
     {
         [NonSerialized]
         UnityEditor.MemoryProfiler.PackedMemorySnapshot _snapshot;
@@ -108,6 +108,9 @@ namespace MemoryProfilerWindow
                 }
             }
             GUILayout.EndHorizontal();
+
+            OnGUI_Entended();
+
             if (_treeMapView != null)
                 _treeMapView.Draw();
             if (_inspector != null)

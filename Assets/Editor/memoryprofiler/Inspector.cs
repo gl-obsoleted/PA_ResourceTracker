@@ -53,7 +53,8 @@ namespace MemoryProfilerWindow
 
         public void Draw()
         {
-            GUILayout.BeginArea(new Rect(_hostWindow.position.width - s_InspectorWidth, 25, s_InspectorWidth, _hostWindow.position.height - 25f));
+            float topSpace = _hostWindow.TopButtonsVerticalSpaces;
+            GUILayout.BeginArea(new Rect(_hostWindow.position.width - s_InspectorWidth, topSpace, s_InspectorWidth, _hostWindow.position.height - topSpace));
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
 
             if (_selectedThing == null)
