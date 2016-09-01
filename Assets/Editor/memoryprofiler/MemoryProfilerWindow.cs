@@ -32,13 +32,13 @@ namespace MemoryProfilerWindow
         public Inspector _inspector;
         TreeMapView _treeMapView;
 
-        [MenuItem("Window/MemoryProfiler")]
+        [MenuItem("Window/Memory/MemoryProfiler")]
         static void Create()
         {
             EditorWindow.GetWindow<MemoryProfilerWindow>();
         }
 
-        [MenuItem("Window/MemoryProfilerInspect")]
+        [MenuItem("Window/Memory/MemoryProfilerInspect")]
         static void Inspect()
         {
         }
@@ -163,6 +163,12 @@ namespace MemoryProfilerWindow
 
         void IncomingSnapshot(PackedMemorySnapshot snapshot)
         {
+            if (_isRequestingCompBegin)
+            {
+                OnSnapshotBeginComparing(snapshot);
+                return;
+            }
+
             _snapshot = snapshot;
 
             _packedCrawled = new Crawler().Crawl(_snapshot);

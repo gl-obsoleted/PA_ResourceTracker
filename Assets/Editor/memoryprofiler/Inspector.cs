@@ -145,6 +145,9 @@ namespace MemoryProfilerWindow
                     GUILayout.TextArea("No root is keeping this object alive. It will be collected next UnloadUnusedAssets() or scene load");
                 }
             }
+
+            GUILayout.TextArea(GetSelectedDebugInfo(), GUILayout.MinHeight(100f));
+
             GUILayout.EndScrollView();
             GUILayout.EndArea();
         }
@@ -368,6 +371,19 @@ namespace MemoryProfilerWindow
                 return Color.yellow;
 
             throw new ArgumentException("Unexpected type: " + rb.GetType());
+        }
+
+        private string GetSelectedDebugInfo()
+        {
+            var obj = _selectedThing as NativeUnityEngineObject;
+            if (ResourceTracker.Instance == null || obj == null)
+                return "";
+
+            ResourceRequestInfo requestInfo = ResourceTracker.Instance.GetAllocInfo(obj.instanceID, obj.className);
+            if (requestInfo == null)
+                return "";
+            
+            return requestInfo.ToString();
         }
     }
 }

@@ -22,23 +22,44 @@ namespace MemoryProfilerWindow
 
         string _searchString = "";
 
+        bool _isRequestingCompBegin = false;
+        string _compBeginFilename;
+        void OnSnapshotBeginComparing(PackedMemorySnapshot snapshot)
+        {
+            string filename = string.Format("{0}/{1}-{2}.memsnap",
+                Application.persistentDataPath, 
+                SysUtil.FormatDateAsFileNameString(DateTime.Now), 
+                SysUtil.FormatTimeAsFileNameString(DateTime.Now));
+
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            using (Stream stream = File.Open(filename, FileMode.Create))
+            {
+                bf.Serialize(stream, snapshot);
+            }
+
+            _compBeginFilename = filename;
+            _isRequestingCompBegin = false;
+        }
+
         void OnGUI_Entended()
         {
             GUILayout.BeginHorizontal(GUILayout.Height(_extendedButtonHeight));
 
             GUILayout.Space(5);
 
-            if (GUILayout.Button("Take Snapshot (Begin)", GUILayout.MaxWidth(200)))
+            if (GUILayout.Button("Snapshot (Begin)", GUILayout.MaxWidth(120)))
             {
+                _isRequestingCompBegin = true;
+                _compBeginFilename = "";
                 UnityEditor.MemoryProfiler.MemorySnapshot.RequestNewSnapshot();
             }
-            if (GUILayout.Button("Take Snapshot (End)", GUILayout.MaxWidth(200)))
+            if (GUILayout.Button("Snapshot (End)", GUILayout.MaxWidth(120)))
             {
-                string fileName = EditorUtility.OpenFilePanel("Compare With", null, "memsnap");
-                if (!string.IsNullOrEmpty(fileName))
+                UnityEditor.MemoryProfiler.MemorySnapshot.RequestNewSnapshot();
+                if (!string.IsNullOrEmpty(_compBeginFilename))
                 {
                     System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    using (Stream stream = File.Open(fileName, FileMode.Open))
+                    using (Stream stream = File.Open(_compBeginFilename, FileMode.Open))
                     {
                         MemoryCompareTarget.Instance.SetCompareTarget(bf.Deserialize(stream) as PackedMemorySnapshot);
 
@@ -49,6 +70,8 @@ namespace MemoryProfilerWindow
                     }
                 }
             }
+
+            GUILayout.Label(_compBeginFilename);
             GUILayout.FlexibleSpace();
 
             _searchString = GUILayout.TextField(_searchString, 100, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(300));

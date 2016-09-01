@@ -58,7 +58,9 @@ public class Planter : MonoBehaviour {
         GameObject proto = null;
         if (!_plantPrototypes.TryGetValue(name, out proto))
         {
-            var r = Resources.Load(_plantInfo[name], typeof(GameObject)) as GameObject;
+            string path = _plantInfo[name];
+            var r = Resources.Load(path, typeof(GameObject)) as GameObject;
+            ResourceTracker.Instance.TrackResourcesDotLoad(r, path);
             if (r == null)
                 return;
 
@@ -69,6 +71,7 @@ public class Planter : MonoBehaviour {
         GameObject plant = Instantiate(proto) as GameObject;
         if (anchor != null && plant != null)
         {
+            ResourceTracker.Instance.TrackObjectInstantiation(proto, plant);
             plant.transform.parent = anchor.transform;
             plant.transform.localPosition = Vector3.zero;
             plant.transform.localScale = Vector3.one * 0.3f;
