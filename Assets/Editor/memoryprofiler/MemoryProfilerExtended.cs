@@ -20,7 +20,6 @@ namespace MemoryProfilerWindow
 
         public float TopButtonsVerticalSpaces { get { return 25 + _extendedButtonHeight; } }
 
-        string _searchString = "";
 
         bool _isRequestingCompBegin = false;
         string _compBeginFilename;
@@ -74,13 +73,6 @@ namespace MemoryProfilerWindow
             GUILayout.Label(_compBeginFilename);
             GUILayout.FlexibleSpace();
 
-            _searchString = GUILayout.TextField(_searchString, 100, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(300));
-            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
-            {
-                // Remove focus if cleared
-                _searchString = "";
-                GUI.FocusControl(null);
-            }
             GUILayout.EndHorizontal();
         }
     }

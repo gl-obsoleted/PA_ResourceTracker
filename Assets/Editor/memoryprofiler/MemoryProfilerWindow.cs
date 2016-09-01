@@ -119,6 +119,30 @@ namespace MemoryProfilerWindow
             //RenderDebugList();
         }
 
+        public string[] FindThingsByName(string name)
+        {
+            List<string> ret = new List<string>();
+            foreach (var thing in _unpackedCrawl.allObjects)
+            {
+                var nat = thing as NativeUnityEngineObject;
+                if (nat != null && nat.name.Contains(name))
+                    ret.Add(nat.name);
+            }
+            return ret.ToArray();
+        }
+
+        public ThingInMemory FindThingInMemoryByExactName(string name)
+        {
+            foreach (var thing in _unpackedCrawl.allObjects)
+            {
+                var nat = thing as NativeUnityEngineObject;
+                if (nat != null && nat.name == name)
+                    return thing;
+            }
+
+            return null;
+        }
+
         public void SelectThing(ThingInMemory thing)
         {
             _inspector.SelectThing(thing);
@@ -166,7 +190,6 @@ namespace MemoryProfilerWindow
             if (_isRequestingCompBegin)
             {
                 OnSnapshotBeginComparing(snapshot);
-                return;
             }
 
             _snapshot = snapshot;
