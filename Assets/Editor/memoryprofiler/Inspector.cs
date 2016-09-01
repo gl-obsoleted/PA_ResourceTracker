@@ -94,7 +94,13 @@ namespace MemoryProfilerWindow
 
                 if (_searchResultSelected != selected && selected >= 0)
                 {
-                    var thing = _hostWindow.FindThingInMemoryByExactName(_searchResults[selected]);
+                    string fullname = _searchResults[selected];
+                    int index = fullname.IndexOf("/");
+                    if (index != -1)
+                    {
+                        fullname = fullname.Substring(fullname.IndexOf("/") + 1);
+                    }
+                    var thing = _hostWindow.FindThingInMemoryByExactName(fullname);
                     if (thing != null)
                     {
                         _hostWindow.SelectThing(thing);

@@ -123,7 +123,7 @@ namespace MemoryProfilerWindow
             {
                 var nat = thing as NativeUnityEngineObject;
                 if (nat != null && nat.name.ToLower().Contains(lower))
-                    ret.Add(nat.name);
+                    ret.Add(string.Format("({0})/{1}", nat.className, nat.name));
             }
             return ret.ToArray();
         }
