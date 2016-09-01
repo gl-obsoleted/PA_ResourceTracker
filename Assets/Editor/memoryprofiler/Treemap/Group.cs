@@ -7,7 +7,7 @@ using MemoryProfilerWindow;
 using UnityEditor;
 using UnityEngine;
 
-namespace Treemap
+namespace Assets.Editor.Treemap
 {
     public class Group : IComparable<Group>, ITreemapRenderable
     {

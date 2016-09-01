@@ -1,16 +1,7 @@
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using Assets.Editor.Treemap;
-using Treemap;
-using UnityEditor;
-using UnityEngine;
 using System;
-using System.Net;
-using NUnit.Framework.Constraints;
-using UnityEditor.MemoryProfiler;
-using Object = UnityEngine.Object;
 using System.IO;
+using UnityEngine;
+using UnityEditor.MemoryProfiler;
 
 namespace MemoryProfilerWindow
 {

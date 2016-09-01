@@ -1,8 +1,6 @@
 using System;
-using NUnit.Framework.Constraints;
 using UnityEngine;
 using System.Collections.Generic;
-using Treemap;
 using UnityEditor;
 using Assets.Editor.Treemap;
 using System.Linq;
@@ -10,6 +8,9 @@ using UnityEngine.UI;
 
 namespace MemoryProfilerWindow
 {
+    using Item = Assets.Editor.Treemap.Item;
+    using Group = Assets.Editor.Treemap.Group;
+
     public class TreeMapView
     {
         CrawledMemorySnapshot _unpackedCrawl;

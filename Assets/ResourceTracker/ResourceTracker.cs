@@ -81,7 +81,7 @@ public class ResourceTracker : IDisposable
         if (_logWriter != null)
         {
             _logWriter.WriteLine("--------- unfinished request: {0} --------- ", InProgressAsyncObjects.Count);
-            foreach (KeyValuePair<UnityEngine.Object, ResourceRequestInfo> p in InProgressAsyncObjects)
+            foreach (KeyValuePair<System.Object, ResourceRequestInfo> p in InProgressAsyncObjects)
             {
                 _logWriter.WriteLine("  + {0}", p.Value.ToString());
             }
@@ -160,7 +160,7 @@ public class ResourceTracker : IDisposable
         }
     }
 
-    public void TrackAsyncRequest(UnityEngine.Object handle, string path)
+    public void TrackAsyncRequest(System.Object handle, string path)
     {
         var sf = new System.Diagnostics.StackFrame(2, true);
         if (sf.GetMethod().Name.Contains("SpawnAsyncOldVer"))
@@ -171,7 +171,7 @@ public class ResourceTracker : IDisposable
         InProgressAsyncObjects[handle] = NewRequest(path, sf);
     }
 
-    public void TrackAsyncDone(UnityEngine.Object handle, UnityEngine.Object target)
+    public void TrackAsyncDone(System.Object handle, UnityEngine.Object target)
     {
         ResourceRequestInfo request;
         if (!InProgressAsyncObjects.TryGetValue(handle, out request))
@@ -225,7 +225,7 @@ public class ResourceTracker : IDisposable
         return requestInfo;
     }
 
-    Dictionary<UnityEngine.Object, ResourceRequestInfo> InProgressAsyncObjects = new Dictionary<UnityEngine.Object, ResourceRequestInfo>();
+    Dictionary<System.Object, ResourceRequestInfo> InProgressAsyncObjects = new Dictionary<System.Object, ResourceRequestInfo>();
     Dictionary<int, ResourceRequestInfo> TrackedAllocInfo = new Dictionary<int, ResourceRequestInfo>();
 
     Dictionary<int, int> TrackedGameObjects = new Dictionary<int, int>();

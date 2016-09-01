@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Treemap
+namespace Assets.Editor.Treemap
 {
     public class Utility
     {

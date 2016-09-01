@@ -1,19 +1,15 @@
+using System;
+using System.IO;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using Assets.Editor.Treemap;
-using Treemap;
 using UnityEditor;
 using UnityEngine;
-using System;
-using System.Net;
-using NUnit.Framework.Constraints;
 using UnityEditor.MemoryProfiler;
-using Object = UnityEngine.Object;
-using System.IO;
 
 namespace MemoryProfilerWindow
 {
+    using Item = Assets.Editor.Treemap.Item;
+    using Group = Assets.Editor.Treemap.Group;
+
     public partial class MemoryProfilerWindow : EditorWindow
     {
         [NonSerialized]
@@ -121,11 +117,12 @@ namespace MemoryProfilerWindow
 
         public string[] FindThingsByName(string name)
         {
+            string lower = name.ToLower();
             List<string> ret = new List<string>();
             foreach (var thing in _unpackedCrawl.allObjects)
             {
                 var nat = thing as NativeUnityEngineObject;
-                if (nat != null && nat.name.Contains(name))
+                if (nat != null && nat.name.ToLower().Contains(lower))
                     ret.Add(nat.name);
             }
             return ret.ToArray();
