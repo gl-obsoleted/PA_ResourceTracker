@@ -2,7 +2,7 @@
 
 An enhanced fork of [memoryprofiler](https://bitbucket.org/Unity-Technologies/memoryprofiler).
 
-## Additional benefits
+## Additional features (with all original memoryprofiler functionalities included)
 
 - **Snapshot-Diff** 
   + Multiple snapshots comparison
@@ -21,7 +21,7 @@ An enhanced fork of [memoryprofiler](https://bitbucket.org/Unity-Technologies/me
 ![3](/_img/3.png)
 
 - **Minimum Sample** 
-  + Contains a formulated test project (a sample scene with recommended usage)
+  + Contains a sample project (a simulation scene with minimum and recommended usage)
 
 ![4](/_img/4.png)
 
