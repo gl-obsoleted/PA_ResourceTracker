@@ -4,13 +4,21 @@ An enhanced fork of [memoryprofiler](https://bitbucket.org/Unity-Technologies/me
 
 The extra benefits:
 
-- *Snapshot-Diff* Multiple snapshots comparison
+- **Snapshot-Diff** Multiple snapshots comparison
+ 
+![1](/_img/1.png)
 
-- *Text Searching* full text searching among all memory objects (with type-grouped results)
+- **Text Searching** full text searching among all memory objects (with type-grouped results)
 
-- *Alloc Tracking* The source-code allocation point backtracking of a given memory block
+![2](/_img/2.png)
 
-- Contains a formulated test project (a sample scene with recommended usage)
+- **Alloc Tracking** The source-code allocation point backtracking of a given memory block
+
+![3](/_img/3.png)
+
+- **Minimum Sample** Contains a formulated test project (a sample scene with recommended usage)
+
+![4](/_img/4.png)
 
 Minor fixes:
 
