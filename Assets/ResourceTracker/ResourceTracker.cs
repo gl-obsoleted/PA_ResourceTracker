@@ -27,6 +27,8 @@ public class ResourceRequestInfo
 
     public double requestTime = Time.realtimeSinceStartup;
 
+    public int stacktraceHash = 0;
+
     public string ToString()
     {
         return string.Format("#{0} ({1:0.000}) {2} {3} {4} +{5} +{6} ({7})",
@@ -201,6 +203,15 @@ public class ResourceTracker : IDisposable
         return requestInfo;
     }
 
+    public string GetStackTrace(ResourceRequestInfo req)
+    {
+        string stacktrace;
+        if (!Stacktraces.TryGetValue(req.stacktraceHash, out stacktrace))
+            return "";
+
+        return stacktrace;
+    }
+
     private ResourceRequestInfo NewRequest(string path, StackFrame sf)
     {
         ResourceRequestInfo reqInfo = new ResourceRequestInfo();
@@ -209,6 +220,34 @@ public class ResourceTracker : IDisposable
         reqInfo.srcLineNum = sf.GetFileLineNumber();
         reqInfo.seqID = _reqSeq++;
 
+        string stacktrace = UnityEngine.StackTraceUtility.ExtractStackTrace();
+
+        int _tryCount = 10;
+        while (_tryCount > 0)
+        {
+            string stacktraceStored;
+            if (!Stacktraces.TryGetValue(stacktrace.GetHashCode(), out stacktraceStored))
+            {
+                Stacktraces[stacktrace.GetHashCode()] = stacktrace;
+                break;
+            }
+            else
+            {
+                if (stacktrace == stacktraceStored)
+                {
+                    break;
+                }
+                else
+                {
+                    // collision happens!
+                    stacktrace += ((int)(UnityEngine.Random.value * 100)).ToString();
+                }
+            }
+
+            _tryCount--;
+        }
+
+        reqInfo.stacktraceHash = stacktrace.GetHashCode();
         return reqInfo;
     }
 
@@ -260,4 +299,6 @@ public class ResourceTracker : IDisposable
 
     Dictionary<int, int> TrackedGameObjects = new Dictionary<int, int>();
     Dictionary<int, int> TrackedMemObjects = new Dictionary<int, int>();
+
+    Dictionary<int, string> Stacktraces = new Dictionary<int, string>();
 }

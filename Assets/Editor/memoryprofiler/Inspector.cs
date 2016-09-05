@@ -210,7 +210,7 @@ namespace MemoryProfilerWindow
                 }
             }
 
-            GUILayout.TextArea(GetSelectedDebugInfo(), GUILayout.MinHeight(100f));
+            GUILayout.TextArea(GetSelectedDebugInfo(), GUILayout.MinHeight(300f));
 
             GUILayout.EndScrollView();
             GUILayout.EndArea();
@@ -440,14 +440,14 @@ namespace MemoryProfilerWindow
         private string GetSelectedDebugInfo()
         {
             var obj = _selectedThing as NativeUnityEngineObject;
-            if (ResourceTracker.Instance == null || obj == null)
+            if (obj == null || ResourceTracker.Instance == null || !ResourceTracker.Instance.EnableTracking)
                 return "";
 
             ResourceRequestInfo requestInfo = ResourceTracker.Instance.GetAllocInfo(obj.instanceID, obj.className);
             if (requestInfo == null)
                 return "";
-            
-            return requestInfo.ToString();
+
+            return string.Format("{0}\n\nStackTrace:\n{1}", requestInfo.ToString(), ResourceTracker.Instance.GetStackTrace(requestInfo));
         }
     }
 }
