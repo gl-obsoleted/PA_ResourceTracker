@@ -45,40 +45,49 @@ public class ResourceTracker : IDisposable
 {
     public static ResourceTracker Instance;
 
+    // this boolean is *read-only* after the instance is created
+    public bool EnableTracking { get { return _enableTracking; } }
+    private bool _enableTracking = true;    
+
     private StreamWriter _logWriter = null;
     private string _logPath = "";
     private int _reqSeq = 0;
 
-    public ResourceTracker()
+    public ResourceTracker(bool enableTracking)
     {
-        try
+        if (enableTracking)
         {
-            DateTime dt = DateTime.Now;
-
-            string logFile = string.Format("{0}_{1}_alloc.txt", SysUtil.FormatDateAsFileNameString(dt), SysUtil.FormatTimeAsFileNameString(dt));
-            string logPath = Path.Combine(Application.persistentDataPath, logFile);
-
-            _logWriter = new FileInfo(logPath).CreateText();
-            _logWriter.AutoFlush = true;
-            _logPath = logPath;
-        }
-        catch (Exception ex)
-        {
-            UnityEngine.Debug.LogErrorFormat("[ResourceTracker.ctor] error: {0} ", ex.Message);
-
-            if (_logWriter != null)
+            try
             {
-                _logWriter.Close();
-                _logWriter = null;
-            }
+                DateTime dt = DateTime.Now;
 
-            _logPath = "";
+                string logFile = string.Format("{0}_{1}_alloc.txt", SysUtil.FormatDateAsFileNameString(dt), SysUtil.FormatTimeAsFileNameString(dt));
+                string logPath = Path.Combine(Application.persistentDataPath, logFile);
+
+                _logWriter = new FileInfo(logPath).CreateText();
+                _logWriter.AutoFlush = true;
+                _logPath = logPath;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogErrorFormat("[ResourceTracker.ctor] error: {0} ", ex.Message);
+
+                if (_logWriter != null)
+                {
+                    _logWriter.Close();
+                    _logWriter = null;
+                }
+
+                _logPath = "";
+            }
         }
+
+        _enableTracking = enableTracking;
     }
 
     public void Dispose()
     {
-        if (_logWriter != null)
+        if (_enableTracking && _logWriter != null)
         {
             _logWriter.WriteLine("--------- unfinished request: {0} --------- ", InProgressAsyncObjects.Count);
             foreach (KeyValuePair<System.Object, ResourceRequestInfo> p in InProgressAsyncObjects)
@@ -92,6 +101,9 @@ public class ResourceTracker : IDisposable
 
     public void TrackSyncRequest(UnityEngine.Object spawned, string path)
     {
+        if (!_enableTracking)
+            return;
+
         var sf = new System.Diagnostics.StackFrame(2, true);
         var request = NewRequest(path, sf);
         request.requestType = ResourceRequestType.Ordinary;
@@ -100,10 +112,93 @@ public class ResourceTracker : IDisposable
 
     public void TrackResourcesDotLoad(UnityEngine.Object loaded, string path)
     {
+        if (!_enableTracking)
+            return;
+
         var sf = new System.Diagnostics.StackFrame(1, true);
         var request = NewRequest(path, sf);
         request.requestType = ResourceRequestType.Ordinary;
         TrackRequestWithObject(request, loaded);
+    }
+
+    public void TrackAsyncRequest(System.Object handle, string path)
+    {
+        if (!_enableTracking)
+            return;
+
+        var sf = new System.Diagnostics.StackFrame(2, true);
+        if (sf.GetMethod().Name.Contains("SpawnAsyncOldVer"))
+        {
+            sf = new System.Diagnostics.StackFrame(3, true);
+        }
+
+        InProgressAsyncObjects[handle] = NewRequest(path, sf);
+    }
+
+    public void TrackAsyncDone(System.Object handle, UnityEngine.Object target)
+    {
+        if (!_enableTracking)
+            return;
+
+        ResourceRequestInfo request;
+        if (!InProgressAsyncObjects.TryGetValue(handle, out request))
+            return;
+
+        request.requestType = ResourceRequestType.Async;
+        TrackRequestWithObject(request, target);
+        InProgressAsyncObjects.Remove(handle);
+    }
+
+    public void TrackSceneLoaded(string sceneName)
+    {
+        if (!_enableTracking)
+            return;
+
+        UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        if (scene == null)
+            return;
+
+        GameObject[] roots = scene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+        {
+            TrackSyncRequest(roots[i], "[scene]: " + sceneName);
+        }
+    }
+
+    public void TrackObjectInstantiation(UnityEngine.Object src, UnityEngine.Object instantiated)
+    {
+        if (!_enableTracking)
+            return;
+
+        int allocSeqID = -1;
+        if (!TrackedGameObjects.TryGetValue(src.GetInstanceID(), out allocSeqID))
+            return;
+
+        ExtractObjectResources(instantiated, allocSeqID);
+    }
+
+    public ResourceRequestInfo GetAllocInfo(int instID, string className)
+    {
+        if (!_enableTracking)
+            return null;
+
+        int allocSeqID = -1;
+        if (className == "GameObject")
+        {
+            if (!TrackedGameObjects.TryGetValue(instID, out allocSeqID))
+                return null;
+        }
+        else if (SceneGraphExtractor.MemCategories.Contains(className))
+        {
+            if (!TrackedMemObjects.TryGetValue(instID, out allocSeqID))
+                return null;
+        }
+        
+        ResourceRequestInfo requestInfo = null;
+        if (!TrackedAllocInfo.TryGetValue(allocSeqID, out requestInfo))
+            return null;
+
+        return requestInfo;
     }
 
     private ResourceRequestInfo NewRequest(string path, StackFrame sf)
@@ -158,71 +253,6 @@ public class ResourceTracker : IDisposable
             UnityEngine.Debug.LogErrorFormat("[ResourceTracker.TrackAsyncDone] error: {0} \n {1} \n {2}",
                 ex.Message, req != null ? req.ToString() : "", ex.StackTrace);
         }
-    }
-
-    public void TrackAsyncRequest(System.Object handle, string path)
-    {
-        var sf = new System.Diagnostics.StackFrame(2, true);
-        if (sf.GetMethod().Name.Contains("SpawnAsyncOldVer"))
-        {
-            sf = new System.Diagnostics.StackFrame(3, true);
-        }
-
-        InProgressAsyncObjects[handle] = NewRequest(path, sf);
-    }
-
-    public void TrackAsyncDone(System.Object handle, UnityEngine.Object target)
-    {
-        ResourceRequestInfo request;
-        if (!InProgressAsyncObjects.TryGetValue(handle, out request))
-            return;
-
-        request.requestType = ResourceRequestType.Async;
-        TrackRequestWithObject(request, target);
-        InProgressAsyncObjects.Remove(handle);
-    }
-
-    public void TrackSceneLoaded(string sceneName)
-    {
-        UnityEngine.SceneManagement.Scene scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-        if (scene == null)
-            return;
-
-        GameObject[] roots = scene.GetRootGameObjects();
-        for (int i = 0; i < roots.Length; i++)
-        {
-            TrackSyncRequest(roots[i], "[scene]: " + sceneName);
-        }
-    }
-
-    public void TrackObjectInstantiation(UnityEngine.Object src, UnityEngine.Object instantiated)
-    {
-        int allocSeqID = -1;
-        if (!TrackedGameObjects.TryGetValue(src.GetInstanceID(), out allocSeqID))
-            return;
-
-        ExtractObjectResources(instantiated, allocSeqID);
-    }
-
-    public ResourceRequestInfo GetAllocInfo(int instID, string className)
-    {
-        int allocSeqID = -1;
-        if (className == "GameObject")
-        {
-            if (!TrackedGameObjects.TryGetValue(instID, out allocSeqID))
-                return null;
-        }
-        else if (SceneGraphExtractor.MemCategories.Contains(className))
-        {
-            if (!TrackedMemObjects.TryGetValue(instID, out allocSeqID))
-                return null;
-        }
-        
-        ResourceRequestInfo requestInfo = null;
-        if (!TrackedAllocInfo.TryGetValue(allocSeqID, out requestInfo))
-            return null;
-
-        return requestInfo;
     }
 
     Dictionary<System.Object, ResourceRequestInfo> InProgressAsyncObjects = new Dictionary<System.Object, ResourceRequestInfo>();

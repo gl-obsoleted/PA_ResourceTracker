@@ -79,35 +79,3 @@ public class SceneGraphExtractor
     }
 }
 
-public class GameObjectIDCollector
-{
-    public static List<int> ObjectIDs = new List<int>();
-
-    public static List<int> Collect(UnityEngine.Object root)
-    {
-        if (!(root is GameObject))
-            return null;
-
-        ObjectIDs.Clear();
-
-        CollectRecursively(root as GameObject);
-
-        return ObjectIDs;
-    }
-
-    public static void CollectRecursively(GameObject obj)
-    {
-        ObjectIDs.Add(obj.GetInstanceID());
-
-        for (int i = 0; i < obj.transform.childCount; i++)
-        {
-            var child = obj.transform.GetChild(i).gameObject;
-            if (child != null)
-            {
-                CollectRecursively(child);
-            }
-        }
-    }
-}
-
-
