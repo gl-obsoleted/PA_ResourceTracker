@@ -63,58 +63,61 @@ namespace MemoryProfilerWindow
         public void Draw()
         {
             SearchAreaHeight = SearchBarHeight + SearchResultHeight;
-            GUILayout.BeginArea(new Rect(_hostWindow.position.width - s_InspectorWidth, 
-                _hostWindow.TopButtonsVerticalSpaces, s_InspectorWidth, SearchAreaHeight));
-
-            GUILayout.BeginHorizontal(GUILayout.Height(SearchBarHeight));
-            string enteredString = GUILayout.TextField(_searchString, 100, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(300));
-            if (enteredString != _searchString)
+            if (_hostWindow.EnhancedMode)
             {
-                _searchResults = _hostWindow.FindThingsByName(enteredString);
-                _searchString = enteredString;
-            }
-            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
-            {
-                // Remove focus if cleared
-                _searchString = "";
-                GUI.FocusControl(null);
-                _searchResults = null;
-                _searchResultSelected = -1;
-            }
-            GUILayout.EndHorizontal();
+                GUILayout.BeginArea(new Rect(_hostWindow.position.width - s_InspectorWidth,
+                    _hostWindow.TopButtonsVerticalSpaces, s_InspectorWidth, SearchAreaHeight));
 
-            if (_searchResults != null && _searchResults.Length > 0)
-            {
-                int selected = 0;
-                selected = EditorGUILayout.Popup(
-                    string.Format("Result(s): {0}", _searchResults.Length),
-                    _searchResultSelected, 
-                    _searchResults, 
-                    GUILayout.Height(SearchResultHeight));
-
-                if (_searchResultSelected != selected && selected >= 0)
+                GUILayout.BeginHorizontal(GUILayout.Height(SearchBarHeight));
+                string enteredString = GUILayout.TextField(_searchString, 100, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(300));
+                if (enteredString != _searchString)
                 {
-                    string fullname = _searchResults[selected];
-                    int index = fullname.IndexOf("/");
-                    if (index != -1)
+                    _searchResults = _hostWindow.FindThingsByName(enteredString);
+                    _searchString = enteredString;
+                }
+                if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+                {
+                    // Remove focus if cleared
+                    _searchString = "";
+                    GUI.FocusControl(null);
+                    _searchResults = null;
+                    _searchResultSelected = -1;
+                }
+                GUILayout.EndHorizontal();
+
+                if (_searchResults != null && _searchResults.Length > 0)
+                {
+                    int selected = 0;
+                    selected = EditorGUILayout.Popup(
+                        string.Format("Result(s): {0}", _searchResults.Length),
+                        _searchResultSelected,
+                        _searchResults,
+                        GUILayout.Height(SearchResultHeight));
+
+                    if (_searchResultSelected != selected && selected >= 0)
                     {
-                        fullname = fullname.Substring(fullname.IndexOf("/") + 1);
-                    }
-                    var thing = _hostWindow.FindThingInMemoryByExactName(fullname);
-                    if (thing != null)
-                    {
-                        _hostWindow.SelectThing(thing);
-                        _searchResultSelected = selected;
-                    }
-                    else
-                    {
-                        Debug.LogErrorFormat("not found in memory: {0}", _searchResults[selected]);
+                        string fullname = _searchResults[selected];
+                        int index = fullname.IndexOf("/");
+                        if (index != -1)
+                        {
+                            fullname = fullname.Substring(fullname.IndexOf("/") + 1);
+                        }
+                        var thing = _hostWindow.FindThingInMemoryByExactName(fullname);
+                        if (thing != null)
+                        {
+                            _hostWindow.SelectThing(thing);
+                            _searchResultSelected = selected;
+                        }
+                        else
+                        {
+                            Debug.LogErrorFormat("not found in memory: {0}", _searchResults[selected]);
+                        }
                     }
                 }
+                GUILayout.EndArea();
             }
-            GUILayout.EndArea();
 
-            float topSpace = _hostWindow.TopButtonsVerticalSpaces + SearchAreaHeight;
+            float topSpace = _hostWindow.TopButtonsVerticalSpaces + (_hostWindow.EnhancedMode ? SearchAreaHeight : 0);
             GUILayout.BeginArea(new Rect(_hostWindow.position.width - s_InspectorWidth, topSpace, s_InspectorWidth, _hostWindow.position.height - topSpace));
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
 

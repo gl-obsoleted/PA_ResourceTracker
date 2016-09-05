@@ -60,7 +60,7 @@ namespace MemoryProfilerWindow
             if (_unpackedCrawl == null && _packedCrawled != null && _packedCrawled.valid)
                 Unpack();
 
-
+            RefreshSnapshotList();
         }
 
         void OnGUI()
@@ -68,44 +68,68 @@ namespace MemoryProfilerWindow
             Initialize();
 
             GUILayout.BeginHorizontal();
+
+            _enhancedMode = GUILayout.Toggle(_enhancedMode, "Enhanced Mode", GUILayout.MaxWidth(150));
+
             if (GUILayout.Button("Take Snapshot"))
             {
                 UnityEditor.MemoryProfiler.MemorySnapshot.RequestNewSnapshot();
-            }
-            if (GUILayout.Button("Save Snapshot..."))
-            {
-                if (_snapshot != null)
+
+                // the above call (RequestNewSnapshot) is a sync-invoke so we can process it immediately
+                if (_autoSaveForComparison)
                 {
-                    string fileName = EditorUtility.SaveFilePanel("Save Snapshot", null, "MemorySnapshot", "memsnap");
+                    string filename = SaveTimestampedSnapshot(_snapshot);
+                    if (!string.IsNullOrEmpty(filename))
+                    {
+                        Debug.LogFormat("snapshot '{0}' saved.", filename);
+
+                        RefreshSnapshotList();
+                    }
+                }
+            }
+
+            if (_enhancedMode)
+            {
+                _autoSaveForComparison = GUILayout.Toggle(_autoSaveForComparison, "Auto-Save");
+
+                OnGUI_Entended();
+            }
+            else
+            {
+                if (GUILayout.Button("Save Snapshot..."))
+                {
+                    if (_snapshot != null)
+                    {
+                        string fileName = EditorUtility.SaveFilePanel("Save Snapshot", null, "MemorySnapshot", "memsnap");
+                        if (!string.IsNullOrEmpty(fileName))
+                        {
+                            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                            using (Stream stream = File.Open(fileName, FileMode.Create))
+                            {
+                                bf.Serialize(stream, _snapshot);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.LogWarning("No snapshot to save.  Try taking a snapshot first.");
+                    }
+                }
+                if (GUILayout.Button("Load Snapshot..."))
+                {
+                    string fileName = EditorUtility.OpenFilePanel("Load Snapshot", null, "memsnap");
                     if (!string.IsNullOrEmpty(fileName))
                     {
                         System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                        using (Stream stream = File.Open(fileName, FileMode.Create))
+                        using (Stream stream = File.Open(fileName, FileMode.Open))
                         {
-                            bf.Serialize(stream, _snapshot);
+                            IncomingSnapshot(bf.Deserialize(stream) as PackedMemorySnapshot);
                         }
                     }
                 }
-                else
-                {
-                    UnityEngine.Debug.LogWarning("No snapshot to save.  Try taking a snapshot first.");
-                }
             }
-            if (GUILayout.Button("Load Snapshot..."))
-            {
-                string fileName = EditorUtility.OpenFilePanel("Load Snapshot", null, "memsnap");
-                if (!string.IsNullOrEmpty(fileName))
-                {
-                    System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    using (Stream stream = File.Open(fileName, FileMode.Open))
-                    {
-                        IncomingSnapshot(bf.Deserialize(stream) as PackedMemorySnapshot);
-                    }
-                }
-            }
-            GUILayout.EndHorizontal();
 
-            OnGUI_Entended();
+            GUILayout.EndHorizontal();
 
             if (_treeMapView != null)
                 _treeMapView.Draw();
