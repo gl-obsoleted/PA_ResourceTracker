@@ -76,9 +76,9 @@ namespace MemoryProfilerWindow
                 UnityEditor.MemoryProfiler.MemorySnapshot.RequestNewSnapshot();
 
                 // the above call (RequestNewSnapshot) is a sync-invoke so we can process it immediately
-                if (_autoSaveForComparison)
+                if (_enhancedMode && _autoSaveForComparison)
                 {
-                    string filename = SaveTimestampedSnapshot(_snapshot);
+                    string filename = MemorySnapshotUtil.Save(_snapshot);
                     if (!string.IsNullOrEmpty(filename))
                     {
                         Debug.LogFormat("snapshot '{0}' saved.", filename);
@@ -208,11 +208,6 @@ namespace MemoryProfilerWindow
 
         void IncomingSnapshot(PackedMemorySnapshot snapshot)
         {
-            if (_isRequestingCompBegin)
-            {
-                OnSnapshotBeginComparing(snapshot);
-            }
-
             _snapshot = snapshot;
 
             _packedCrawled = new Crawler().Crawl(_snapshot);

@@ -60,4 +60,27 @@ public class MemorySnapshotUtil
             return null;
         }
     }
+
+    public static string Save(PackedMemorySnapshot snapshot)
+    {
+        try
+        {
+            string filename = GetFullpath(string.Format("{0}-{1}.memsnap",
+                SysUtil.FormatDateAsFileNameString(DateTime.Now),
+                SysUtil.FormatTimeAsFileNameString(DateTime.Now)));
+
+            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            using (Stream stream = File.Open(filename, FileMode.Create))
+            {
+                bf.Serialize(stream, snapshot);
+            }
+            return filename;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
+            return "";
+        }
+    }
+
 }
