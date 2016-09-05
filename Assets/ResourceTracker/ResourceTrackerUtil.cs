@@ -52,9 +52,9 @@ public class SceneGraphExtractor
                 foreach (UnityEngine.Object obj2 in EditorUtility.CollectDependencies(new UnityEngine.Object[] { renderer }))
                 {
                     List<int> ids = null;
-                    if (MemObjectIDs.TryGetValue(obj2.GetType().Name, out ids))
+                    if (obj2 != null && MemObjectIDs.TryGetValue(obj2.GetType().Name, out ids))
                     {
-                        if (!ids.Contains(obj2.GetInstanceID()))
+                        if (ids != null && !ids.Contains(obj2.GetInstanceID()))
                             ids.Add(obj2.GetInstanceID());
                     }
                 }
