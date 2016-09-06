@@ -18,6 +18,11 @@ public class MemorySnapshotUtil
     {
         try
         {
+            if (!Directory.Exists(SnapshotsDir))
+            {
+                Directory.CreateDirectory(SnapshotsDir);
+            }
+
             string[] files = Directory.GetFiles(SnapshotsDir);
             for (int i = 0; i < files.Length; i++)
             {
