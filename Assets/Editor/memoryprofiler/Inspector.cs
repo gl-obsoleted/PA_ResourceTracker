@@ -13,7 +13,6 @@ namespace MemoryProfilerWindow
         ThingInMemory _selectedThing;
         private ThingInMemory[] _shortestPath;
         private ShortestPathToRootFinder _shortestPathToRootFinder;
-        private static int s_InspectorWidth = 400;
         Vector2 _scrollPositionSearching;
         Vector2 _scrollPosition;
         MemoryProfilerWindow _hostWindow;
@@ -41,11 +40,6 @@ namespace MemoryProfilerWindow
             _primitiveValueReader = new PrimitiveValueReader(_unpackedCrawl.virtualMachineInformation, _unpackedCrawl.managedHeap);
         }
 
-        public float width
-        {
-            get { return s_InspectorWidth; }
-        }
-
         public void SelectThing(ThingInMemory thing)
         {
             _selectedThing = thing;
@@ -65,8 +59,8 @@ namespace MemoryProfilerWindow
             SearchAreaHeight = SearchBarHeight + SearchResultHeight;
             if (_hostWindow.EnhancedMode)
             {
-                GUILayout.BeginArea(new Rect(_hostWindow.position.width - s_InspectorWidth,
-                    _hostWindow.TopButtonsVerticalSpaces, s_InspectorWidth, SearchAreaHeight));
+                GUILayout.BeginArea(new Rect(_hostWindow.position.width - MemConst.InspectorWidth,
+                    MemConst.TopBarHeight, MemConst.InspectorWidth, SearchAreaHeight));
 
                 GUILayout.BeginHorizontal(GUILayout.Height(SearchBarHeight));
                 string enteredString = GUILayout.TextField(_searchString, 100, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.MinWidth(300));
@@ -117,8 +111,8 @@ namespace MemoryProfilerWindow
                 GUILayout.EndArea();
             }
 
-            float topSpace = _hostWindow.TopButtonsVerticalSpaces + (_hostWindow.EnhancedMode ? SearchAreaHeight : 0);
-            GUILayout.BeginArea(new Rect(_hostWindow.position.width - s_InspectorWidth, topSpace, s_InspectorWidth, _hostWindow.position.height - topSpace));
+            float topSpace = MemConst.TopBarHeight + (_hostWindow.EnhancedMode ? SearchAreaHeight : 0);
+            GUILayout.BeginArea(new Rect(_hostWindow.position.width - MemConst.InspectorWidth, topSpace, MemConst.InspectorWidth, _hostWindow.position.height - topSpace));
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
 
             if (_selectedThing == null)

@@ -38,29 +38,27 @@ namespace MemoryProfilerWindow
             this._newlyAdded = newlyAdded;
             this._hostWindow = hostWindow;
 
-            _ZoomArea = new ZoomArea(true)
-            {
-                vRangeMin = -110f,
-                vRangeMax = 110f,
-                hRangeMin = -110f,
-                hRangeMax = 110f,
-                hBaseRangeMin = -110f,
-                vBaseRangeMin = -110f,
-                hBaseRangeMax = 110f,
-                vBaseRangeMax = 110f,
-                shownArea = new Rect(-110f, -110f, 220f, 220f)
-            };
             RefreshCaches();
             RefreshMesh();
         }
 
-        public void Draw()
+        public void Draw(Rect r)
         {
-            if (_hostWindow == null)
-                return;
-
-            float topSpace = _hostWindow.TopButtonsVerticalSpaces;
-            Rect r = new Rect(0f, topSpace, _hostWindow.position.width - _hostWindow._inspector.width, _hostWindow.position.height - topSpace);
+            if (_ZoomArea == null)
+            {
+                _ZoomArea = new ZoomArea(true)
+                {
+                    vRangeMin = -110f,
+                    vRangeMax = 110f,
+                    hRangeMin = -110f,
+                    hRangeMax = 110f,
+                    hBaseRangeMin = -110f,
+                    vBaseRangeMin = -110f,
+                    hBaseRangeMax = 110f,
+                    vBaseRangeMax = 110f,
+                    shownArea = new Rect(-110f, -110f, 220f, 220f)
+                };
+            }
 
             _ZoomArea.rect = r;
             _ZoomArea.BeginViewGUI();

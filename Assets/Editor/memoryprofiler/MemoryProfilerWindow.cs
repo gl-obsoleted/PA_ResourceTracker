@@ -10,7 +10,7 @@ namespace MemoryProfilerWindow
     using Item = Assets.Editor.Treemap.Item;
     using Group = Assets.Editor.Treemap.Group;
 
-    public partial class MemoryProfilerWindow : EditorWindow
+    public class MemoryProfilerWindow : EditorWindow
     {
         [NonSerialized]
         UnityEditor.MemoryProfiler.PackedMemorySnapshot _snapshot;
@@ -28,45 +28,49 @@ namespace MemoryProfilerWindow
         public Inspector _inspector;
         TreeMapView _treeMapView;
 
+
+        public bool EnhancedMode { get { return _enhancedMode; } }
+        bool _enhancedMode = true;
+
+        bool _autoSaveForComparison = true;
+        int _selectedBegin = 0;
+        int _selectedEnd = 0;
+        int m_selectedView = 0;
+        string[] _snapshotFiles = new string[] { };
+
         [MenuItem("Window/Memory/MemoryProfiler")]
         static void Create()
         {
             EditorWindow.GetWindow<MemoryProfilerWindow>();
         }
 
-        [MenuItem("Window/Memory/MemoryProfilerInspect")]
-        static void Inspect()
-        {
-        }
-
-        public void OnDisable()
-        {
-            //    UnityEditor.MemoryProfiler.MemorySnapshot.OnSnapshotReceived -= IncomingSnapshot;
-            if (_treeMapView != null)
-                _treeMapView.CleanupMeshes ();
-        }
-
-        public void Initialize()
+        public void OnEnable()
         {
             if (_treeMapView == null)
-                _treeMapView = new TreeMapView ();
-            
+                _treeMapView = new TreeMapView();
+
             if (!_registered)
             {
                 UnityEditor.MemoryProfiler.MemorySnapshot.OnSnapshotReceived += IncomingSnapshot;
                 _registered = true;
             }
 
-            if (_unpackedCrawl == null && _packedCrawled != null && _packedCrawled.valid)
-                Unpack();
-
             RefreshSnapshotList();
+        }
+
+        public void OnDisable()
+        {
+            if (_registered)
+            {
+                UnityEditor.MemoryProfiler.MemorySnapshot.OnSnapshotReceived -= IncomingSnapshot;
+            }
+
+            if (_treeMapView != null)
+                _treeMapView.CleanupMeshes();
         }
 
         void OnGUI()
         {
-            Initialize();
-
             GUILayout.BeginHorizontal();
 
             _enhancedMode = GUILayout.Toggle(_enhancedMode, "Enhanced Mode", GUILayout.MaxWidth(150));
@@ -78,7 +82,7 @@ namespace MemoryProfilerWindow
                 // the above call (RequestNewSnapshot) is a sync-invoke so we can process it immediately
                 if (_enhancedMode && _autoSaveForComparison)
                 {
-                    string filename = MemorySnapshotUtil.Save(_snapshot);
+                    string filename = MemUtil.Save(_snapshot);
                     if (!string.IsNullOrEmpty(filename))
                     {
                         Debug.LogFormat("snapshot '{0}' saved.", filename);
@@ -92,7 +96,50 @@ namespace MemoryProfilerWindow
             {
                 _autoSaveForComparison = GUILayout.Toggle(_autoSaveForComparison, "Auto-Save");
 
-                OnGUI_Entended();
+                GUILayout.FlexibleSpace();
+
+                {
+                    GUILayout.Space(50);
+                    EditorGUIUtility.labelWidth = 40;
+                    _selectedBegin = EditorGUILayout.Popup(string.Format("Begin"), _selectedBegin, _snapshotFiles, GUILayout.Width(250));
+
+                    GUILayout.Space(50);
+
+                    _selectedEnd = EditorGUILayout.Popup(string.Format("End"), _selectedEnd, _snapshotFiles, GUILayout.Width(250));
+                    EditorGUIUtility.labelWidth = 0; // reset to default
+                    GUILayout.Space(50);
+                }
+
+                if (_selectedBegin == _selectedEnd)
+                {
+                    GUI.enabled = false;
+                }
+                if (GUILayout.Button("Compare", GUILayout.MaxWidth(120)))
+                {
+                    Debug.LogFormat("Compare '{0}' with '{1}'", _snapshotFiles[_selectedBegin], _snapshotFiles[_selectedEnd]);
+
+                    var snapshotBegin = MemUtil.Load(_snapshotFiles[_selectedBegin]);
+                    var snapshotEnd = MemUtil.Load(_snapshotFiles[_selectedEnd]);
+
+                    if (snapshotBegin != null && snapshotEnd != null)
+                    {
+                        MemCompareTarget.Instance.SetCompareTarget(snapshotBegin);
+
+                        IncomingSnapshot(snapshotEnd);
+
+                        if (_treeMapView != null)
+                            _treeMapView.Setup(this, _unpackedCrawl, MemCompareTarget.Instance.GetNewlyAdded(_unpackedCrawl));
+                    }
+                }
+                if (_selectedBegin == _selectedEnd)
+                {
+                    GUI.enabled = true;
+                }
+
+                if (GUILayout.Button("Open Dir", GUILayout.MaxWidth(120)))
+                {
+                    EditorUtility.RevealInFinder(MemUtil.SnapshotsDir);
+                }
             }
             else
             {
@@ -131,8 +178,28 @@ namespace MemoryProfilerWindow
 
             GUILayout.EndHorizontal();
 
-            if (_treeMapView != null)
-                _treeMapView.Draw();
+            GUILayout.BeginArea(new Rect(0, MemConst.TopBarHeight, position.width - MemConst.InspectorWidth, 30));
+            GUILayout.BeginHorizontal(MemConst.ToolbarButton);
+
+            m_selectedView = GUILayout.SelectionGrid(m_selectedView, MemConst.ShowTypes, MemConst.ShowTypes.Length, MemConst.ToolbarButton);
+            switch ((eShowType)m_selectedView)
+            {
+                case eShowType.InTable:
+
+                    break;
+
+                case eShowType.InTreemap:
+                    if (_treeMapView != null)
+                        _treeMapView.Draw(new Rect(0f, MemConst.TopBarHeight + 30, position.width - MemConst.InspectorWidth, position.height - MemConst.TopBarHeight));
+                    break;
+
+                default:
+                    break;
+            }
+
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
             if (_inspector != null)
                 _inspector.Draw();
 
@@ -212,6 +279,11 @@ namespace MemoryProfilerWindow
 
             _packedCrawled = new Crawler().Crawl(_snapshot);
             Unpack();
+        }
+
+        void RefreshSnapshotList()
+        {
+            _snapshotFiles = MemUtil.GetFiles();
         }
     }
 }
