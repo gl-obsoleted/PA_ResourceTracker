@@ -25,9 +25,10 @@ namespace MemoryProfilerWindow
 
         [NonSerialized]
         private bool _registered = false;
-        public Inspector _inspector;
-        TreeMapView _treeMapView;
 
+        Inspector _inspector;
+        TreeMapView _treeMapView;
+        MemTableBrowser _tableBrowser;
 
         public bool EnhancedMode { get { return _enhancedMode; } }
         bool _enhancedMode = true;
@@ -35,7 +36,7 @@ namespace MemoryProfilerWindow
         bool _autoSaveForComparison = true;
         int _selectedBegin = 0;
         int _selectedEnd = 0;
-        int m_selectedView = 0;
+        eShowType m_selectedView = 0;
         string[] _snapshotFiles = new string[] { };
 
         [MenuItem("Window/Memory/MemoryProfiler")]
@@ -54,6 +55,9 @@ namespace MemoryProfilerWindow
                 UnityEditor.MemoryProfiler.MemorySnapshot.OnSnapshotReceived += IncomingSnapshot;
                 _registered = true;
             }
+
+            if (_tableBrowser == null)
+                _tableBrowser = new MemTableBrowser(this);
 
             RefreshSnapshotList();
         }
@@ -180,17 +184,18 @@ namespace MemoryProfilerWindow
 
             GUILayout.BeginArea(new Rect(0, MemConst.TopBarHeight, position.width - MemConst.InspectorWidth, 30));
             GUILayout.BeginHorizontal(MemConst.ToolbarButton);
-            m_selectedView = GUILayout.SelectionGrid(m_selectedView, MemConst.ShowTypes, MemConst.ShowTypes.Length, MemConst.ToolbarButton);
+            m_selectedView = (eShowType)GUILayout.SelectionGrid((int)m_selectedView, MemConst.ShowTypes, MemConst.ShowTypes.Length, MemConst.ToolbarButton);
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
 
             float yoffset = MemConst.TopBarHeight + MemConst.TabHeight;
             Rect view = new Rect(0f, yoffset, position.width - MemConst.InspectorWidth, position.height - yoffset);
 
-            switch ((eShowType)m_selectedView)
+            switch (m_selectedView)
             {
                 case eShowType.InTable:
-
+                    if (_tableBrowser != null)
+                        _tableBrowser.Draw(view);
                     break;
 
                 case eShowType.InTreemap:
