@@ -10,6 +10,7 @@ enum eShowType
 public class MemConst 
 {
     public static float TopBarHeight = 25;
+    public static float TabHeight = 30;
     public static int InspectorWidth = 400;
     public static string[] ShowTypes = new string[] { "Table View", "TreeMap View" };
     public static GUIStyle ToolbarButton = "ToolbarButton";

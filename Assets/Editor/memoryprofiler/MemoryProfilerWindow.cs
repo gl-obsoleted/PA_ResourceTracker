@@ -180,8 +180,13 @@ namespace MemoryProfilerWindow
 
             GUILayout.BeginArea(new Rect(0, MemConst.TopBarHeight, position.width - MemConst.InspectorWidth, 30));
             GUILayout.BeginHorizontal(MemConst.ToolbarButton);
-
             m_selectedView = GUILayout.SelectionGrid(m_selectedView, MemConst.ShowTypes, MemConst.ShowTypes.Length, MemConst.ToolbarButton);
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
+
+            float yoffset = MemConst.TopBarHeight + MemConst.TabHeight;
+            Rect view = new Rect(0f, yoffset, position.width - MemConst.InspectorWidth, position.height - yoffset);
+
             switch ((eShowType)m_selectedView)
             {
                 case eShowType.InTable:
@@ -190,15 +195,12 @@ namespace MemoryProfilerWindow
 
                 case eShowType.InTreemap:
                     if (_treeMapView != null)
-                        _treeMapView.Draw(new Rect(0f, MemConst.TopBarHeight + 30, position.width - MemConst.InspectorWidth, position.height - MemConst.TopBarHeight));
+                        _treeMapView.Draw(view);
                     break;
 
                 default:
                     break;
             }
-
-            GUILayout.EndHorizontal();
-            GUILayout.EndArea();
 
             if (_inspector != null)
                 _inspector.Draw();
