@@ -15,3 +15,8 @@ public class MemConst
     public static string[] ShowTypes = new string[] { "Table View", "TreeMap View" };
     public static GUIStyle ToolbarButton = "ToolbarButton";
 }
+
+public class MemStyles
+{
+    public static GUIStyle background = "AnimationCurveEditorBackground";
+}

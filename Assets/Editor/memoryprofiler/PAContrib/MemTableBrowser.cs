@@ -36,15 +36,14 @@ public class MemTableBrowser
         _objectTable.OnSelected += OnObjectSelected;
     }
 
-    public GUIStyle background = "AnimationCurveEditorBackground";
 
     public void Draw(Rect r)
     {
-        GUILayout.BeginArea(r, background);
+        GUILayout.BeginArea(r, MemStyles.background);
         if (_typeTable != null)
-            _typeTable.Draw(new Rect(10, 10, r.width * 0.5f - 20, r.height - 20));
+            _typeTable.Draw(new Rect(10, 10, (int)r.width * 0.5f - 15, r.height - 20));
         if (_objectTable != null)
-            _objectTable.Draw(new Rect(r.width * 0.5f + 10, 10, (int)r.width * 0.5f - 20, (int)r.height - 20));
+            _objectTable.Draw(new Rect((int)r.width * 0.5f + 5, 10, (int)r.width * 0.5f - 15, (int)r.height - 20));
         GUILayout.EndArea();
     }
 
