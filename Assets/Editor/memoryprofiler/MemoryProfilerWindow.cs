@@ -67,6 +67,7 @@ namespace MemoryProfilerWindow
             if (_registered)
             {
                 UnityEditor.MemoryProfiler.MemorySnapshot.OnSnapshotReceived -= IncomingSnapshot;
+                _registered = false;
             }
 
             if (_treeMapView != null)
@@ -183,8 +184,13 @@ namespace MemoryProfilerWindow
             GUILayout.EndHorizontal();
 
             GUILayout.BeginArea(new Rect(0, MemConst.TopBarHeight, position.width - MemConst.InspectorWidth, 30));
-            GUILayout.BeginHorizontal(MemConst.ToolbarButton);
-            m_selectedView = (eShowType)GUILayout.SelectionGrid((int)m_selectedView, MemConst.ShowTypes, MemConst.ShowTypes.Length, MemConst.ToolbarButton);
+            GUILayout.BeginHorizontal(MemStyles.Toolbar);
+            int selected = GUILayout.SelectionGrid((int)m_selectedView, MemConst.ShowTypes, MemConst.ShowTypes.Length, MemStyles.ToolbarButton);
+            if (m_selectedView != (eShowType)selected)
+            {
+                m_selectedView = (eShowType)selected;
+                RefreshCurrentView();
+            }
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
 
@@ -240,13 +246,17 @@ namespace MemoryProfilerWindow
 
         public void SelectThing(ThingInMemory thing)
         {
-            _inspector.SelectThing(thing);
-            _treeMapView.SelectThing(thing);
+            if (_inspector != null)
+                _inspector.SelectThing(thing);
+
+            if (_treeMapView != null)
+                _treeMapView.SelectThing(thing);
         }
 
         public void SelectGroup(Group group)
         {
-            _treeMapView.SelectGroup(group);
+            if (_treeMapView != null)
+                _treeMapView.SelectGroup(group);
         }
 
         private void RenderDebugList()
@@ -271,26 +281,39 @@ namespace MemoryProfilerWindow
             GUILayout.EndScrollView();
         }
 
-        void Unpack()
-        {
-            _unpackedCrawl = CrawlDataUnpacker.Unpack(_packedCrawled);
-            _inspector = new Inspector(this, _unpackedCrawl, _snapshot);
-
-            if(_treeMapView != null)
-                _treeMapView.Setup(this, _unpackedCrawl);
-        }
-
         void IncomingSnapshot(PackedMemorySnapshot snapshot)
         {
             _snapshot = snapshot;
-
             _packedCrawled = new Crawler().Crawl(_snapshot);
-            Unpack();
+            _unpackedCrawl = CrawlDataUnpacker.Unpack(_packedCrawled);
+            _inspector = new Inspector(this, _unpackedCrawl, _snapshot);
+
+            RefreshCurrentView();
         }
 
         void RefreshSnapshotList()
         {
             _snapshotFiles = MemUtil.GetFiles();
+        }
+
+        void RefreshCurrentView()
+        {
+            if (_unpackedCrawl == null)
+                return;
+
+            switch (m_selectedView)
+            {
+                case eShowType.InTable:
+                    if (_tableBrowser != null)
+                        _tableBrowser.RefreshData(_unpackedCrawl);
+                    break;
+                case eShowType.InTreemap:
+                    if (_treeMapView != null)
+                        _treeMapView.Setup(this, _unpackedCrawl);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

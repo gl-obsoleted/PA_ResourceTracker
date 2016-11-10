@@ -13,10 +13,13 @@ public class MemConst
     public static float TabHeight = 30;
     public static int InspectorWidth = 400;
     public static string[] ShowTypes = new string[] { "Table View", "TreeMap View" };
-    public static GUIStyle ToolbarButton = "ToolbarButton";
+
+    public static int TableBorder = 10;
 }
 
 public class MemStyles
 {
+    public static GUIStyle Toolbar = "Toolbar";
+    public static GUIStyle ToolbarButton = "ToolbarButton";
     public static GUIStyle background = "AnimationCurveEditorBackground";
 }
