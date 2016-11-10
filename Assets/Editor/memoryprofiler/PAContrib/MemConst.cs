@@ -15,6 +15,7 @@ public class MemConst
     public static string[] ShowTypes = new string[] { "Table View", "TreeMap View" };
 
     public static int TableBorder = 10;
+    public static float SplitterRatio = 0.4f;
 }
 
 public class MemStyles

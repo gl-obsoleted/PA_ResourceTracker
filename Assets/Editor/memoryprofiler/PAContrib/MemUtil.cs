@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MemoryProfilerWindow;
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor.MemoryProfiler;
@@ -87,4 +88,12 @@ public class MemUtil
         }
     }
 
+    public static string GetGroupName(ThingInMemory thing)
+    {
+        if (thing is NativeUnityEngineObject)
+            return (thing as NativeUnityEngineObject).className ?? "MissingName";
+        if (thing is ManagedObject)
+            return (thing as ManagedObject).typeDescription.name;
+        return thing.GetType().Name;
+    }
 }

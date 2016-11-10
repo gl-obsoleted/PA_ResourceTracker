@@ -246,17 +246,46 @@ namespace MemoryProfilerWindow
 
         public void SelectThing(ThingInMemory thing)
         {
+            SelectThingInViews(thing);
+            SelectThingInInspector(thing);
+        }
+
+        public void SelectThingInViews(ThingInMemory thing)
+        {
+            switch (m_selectedView)
+            {
+                case eShowType.InTable:
+                    if (_tableBrowser != null)
+                        _tableBrowser.SelectThing(thing);
+                    break;
+                case eShowType.InTreemap:
+                    if (_treeMapView != null)
+                        _treeMapView.SelectThing(thing);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void SelectThingInInspector(ThingInMemory thing)
+        {
             if (_inspector != null)
                 _inspector.SelectThing(thing);
-
-            if (_treeMapView != null)
-                _treeMapView.SelectThing(thing);
         }
 
         public void SelectGroup(Group group)
         {
-            if (_treeMapView != null)
-                _treeMapView.SelectGroup(group);
+            switch (m_selectedView)
+            {
+                case eShowType.InTable:
+                    break;
+                case eShowType.InTreemap:
+                    if (_treeMapView != null)
+                        _treeMapView.SelectGroup(group);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void RenderDebugList()
