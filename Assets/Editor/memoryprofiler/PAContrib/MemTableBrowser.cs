@@ -26,10 +26,8 @@ public class MemType
 public class MemObject
 {
     public string InstanceName;
-
     public int Size = 0;
-
-    public string Content = "";
+    public int RefCount = 0;
 
     public MemObject(ThingInMemory thing)
     {
@@ -39,7 +37,7 @@ public class MemObject
         {
             InstanceName = _thing.caption;
             Size = _thing.size;
-            Content = "content";
+            RefCount = _thing.referencedBy.Length;
         }
     }
 
@@ -71,7 +69,7 @@ public class MemTableBrowser
 
         _objectTable.AddColumn("InstanceName", "Instance Name", 0.5f, TextAnchor.MiddleLeft);
         _objectTable.AddColumn("Size", "Size", 0.15f, TextAnchor.MiddleCenter, PAEditorConst.BytesFormatter);
-        _objectTable.AddColumn("Content", "Content", 0.35f);
+        _objectTable.AddColumn("RefCount", "Ref Count", 0.35f);
 
         // sorting
         _typeTable.SetSortParams(2, true);
@@ -148,7 +146,7 @@ public class MemTableBrowser
         if (memObject == null)
             return;
 
-        mpw.SelectThingInInspector(memObject._thing);
+        mpw.SelectThing(memObject._thing);
     }
 
     public void SelectThing(ThingInMemory thing)

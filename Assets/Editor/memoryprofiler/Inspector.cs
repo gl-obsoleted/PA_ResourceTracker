@@ -10,6 +10,8 @@ namespace MemoryProfilerWindow
 {
     public class Inspector
     {
+        public ThingInMemory Selected { get { return _selectedThing; } }
+
         ThingInMemory _selectedThing;
         private ThingInMemory[] _shortestPath;
         private ShortestPathToRootFinder _shortestPathToRootFinder;

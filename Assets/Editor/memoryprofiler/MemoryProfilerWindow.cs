@@ -30,10 +30,12 @@ namespace MemoryProfilerWindow
         TreeMapView _treeMapView;
         MemTableBrowser _tableBrowser;
 
+        ThingInMemory _selectedThing;
+
         public bool EnhancedMode { get { return _enhancedMode; } }
         bool _enhancedMode = true;
 
-        bool _autoSaveForComparison = true;
+        bool _autoSaveForComparison = false;
         int _selectedBegin = 0;
         int _selectedEnd = 0;
         eShowType m_selectedView = 0;
@@ -45,7 +47,7 @@ namespace MemoryProfilerWindow
             EditorWindow.GetWindow<MemoryProfilerWindow>();
         }
 
-        public void OnEnable()
+        void OnEnable()
         {
             if (_treeMapView == null)
                 _treeMapView = new TreeMapView();
@@ -62,7 +64,7 @@ namespace MemoryProfilerWindow
             RefreshSnapshotList();
         }
 
-        public void OnDisable()
+        void OnDisable()
         {
             if (_registered)
             {
@@ -72,6 +74,32 @@ namespace MemoryProfilerWindow
 
             if (_treeMapView != null)
                 _treeMapView.CleanupMeshes();
+        }
+
+        void Update()
+        {
+            // the selecting should be performed outside OnGUI() to prevent exception below:
+            //      ArgumentException: control 1's position in group with only 1 control
+            //  http://answers.unity3d.com/questions/240913/argumentexception-getting-control-1s-position-in-a.html
+            //  http://answers.unity3d.com/questions/400454/argumentexception-getting-control-0s-position-in-a-1.html
+            if (_inspector != null && _selectedThing != _inspector.Selected)
+            {
+                switch (m_selectedView)
+                {
+                    case eShowType.InTable:
+                        if (_tableBrowser != null)
+                            _tableBrowser.SelectThing(_selectedThing);
+                        break;
+                    case eShowType.InTreemap:
+                        if (_treeMapView != null)
+                            _treeMapView.SelectThing(_selectedThing);
+                        break;
+                    default:
+                        break;
+                }
+                if (_inspector != null)
+                    _inspector.SelectThing(_selectedThing);
+            }
         }
 
         void OnGUI()
@@ -246,31 +274,7 @@ namespace MemoryProfilerWindow
 
         public void SelectThing(ThingInMemory thing)
         {
-            SelectThingInViews(thing);
-            SelectThingInInspector(thing);
-        }
-
-        public void SelectThingInViews(ThingInMemory thing)
-        {
-            switch (m_selectedView)
-            {
-                case eShowType.InTable:
-                    if (_tableBrowser != null)
-                        _tableBrowser.SelectThing(thing);
-                    break;
-                case eShowType.InTreemap:
-                    if (_treeMapView != null)
-                        _treeMapView.SelectThing(thing);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void SelectThingInInspector(ThingInMemory thing)
-        {
-            if (_inspector != null)
-                _inspector.SelectThing(thing);
+            _selectedThing = thing;
         }
 
         public void SelectGroup(Group group)
