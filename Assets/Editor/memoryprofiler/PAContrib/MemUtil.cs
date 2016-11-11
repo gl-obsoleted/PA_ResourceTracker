@@ -96,4 +96,51 @@ public class MemUtil
             return (thing as ManagedObject).typeDescription.name;
         return thing.GetType().Name;
     }
+    public static int GetCategory(ThingInMemory thing)
+    {
+        if (thing is NativeUnityEngineObject)
+            return 1;
+        if (thing is ManagedObject)
+            return 2;
+
+        return 3;
+    }
+
+    public static string GetCategoryLiteral(ThingInMemory thing)
+    {
+        if (thing is NativeUnityEngineObject)
+            return "[native] ";
+        if (thing is ManagedObject)
+            return "[managed] ";
+        if (thing is GCHandle)
+            return "[gchandle] ";
+        if (thing is StaticFields)
+            return "[static] ";
+
+        return "[unknown] ";
+    }
+
+    public static bool MatchSizeLimit(int size, int curLimitIndex)
+    {
+        if (curLimitIndex == 0)
+            return true;
+
+        switch (curLimitIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return size >= MemConst._1MB;
+
+            case 2:
+                return size >= MemConst._1KB && size < MemConst._1MB;
+
+            case 3:
+                return size < MemConst._1KB;
+
+            default:
+                return false;
+        }
+    }
 }

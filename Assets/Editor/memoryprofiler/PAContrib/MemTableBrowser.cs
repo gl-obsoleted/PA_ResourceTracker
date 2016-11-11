@@ -14,6 +14,8 @@ public class MemType
 
     public List<object> Objects = new List<object>();
 
+    public int Category = 0;
+
     public void AddObject(MemObject mo)
     {
         Objects.Add(mo);
@@ -85,10 +87,9 @@ public class MemTableBrowser
 
     public void RefreshData(CrawledMemorySnapshot unpackedCrawl)
     {
-        _types.Clear();
         _unpacked = unpackedCrawl;
 
-        List<object> types = new List<object>();
+        _types.Clear();
         foreach (ThingInMemory thingInMemory in _unpacked.allObjects)
         {
             string typeName = MemUtil.GetGroupName(thingInMemory);
@@ -99,10 +100,10 @@ public class MemTableBrowser
             if (!_types.ContainsKey(typeName))
             {
                 theType = new MemType();
-                theType.TypeName = typeName;
+                theType.TypeName = MemUtil.GetCategoryLiteral(thingInMemory) + typeName;
+                theType.Category = MemUtil.GetCategory(thingInMemory);
                 theType.Objects = new List<object>();
                 _types.Add(typeName, theType);
-                types.Add(theType);
             }
             else
             {
@@ -113,7 +114,33 @@ public class MemTableBrowser
             theType.AddObject(item);
         }
 
-        _typeTable.RefreshData(types);
+        RefreshTables();
+    }
+
+    public void RefreshTables()
+    {
+        if (_unpacked == null)
+            return;
+
+        List<object> qualified = new List<object>();
+        foreach (var p in _types)
+        {
+            MemType mt = p.Value;
+
+            // skip this type if category mismatched
+            if (_memTypeCategory != 0 && 
+                _memTypeCategory != mt.Category)
+            {
+                continue;
+            }
+
+            if (!MemUtil.MatchSizeLimit(mt.Size, _memTypeSizeLimiter))
+                continue;
+
+            qualified.Add(mt);
+        }
+
+        _typeTable.RefreshData(qualified);
         _objectTable.RefreshData(null);
     }
 
@@ -127,10 +154,20 @@ public class MemTableBrowser
         int toolbarHeight = 30;
         GUILayout.BeginHorizontal(MemStyles.Toolbar);
         GUILayout.Label("Category: ");
-        _memTypeCategory = GUILayout.SelectionGrid(_memTypeCategory, MemConst.MemTypeCategories, MemConst.MemTypeCategories.Length, MemStyles.ToolbarButton);
+        int newCategory = GUILayout.SelectionGrid(_memTypeCategory, MemConst.MemTypeCategories, MemConst.MemTypeCategories.Length, MemStyles.ToolbarButton);
+        if (newCategory != _memTypeCategory)
+        {
+            _memTypeCategory = newCategory;
+            RefreshTables();
+        }
         GUILayout.Space(50);
         GUILayout.Label("Size Limit: ");
-        _memTypeSizeLimiter = GUILayout.SelectionGrid(_memTypeSizeLimiter, MemConst.MemTypeLimitations, MemConst.MemTypeLimitations.Length, MemStyles.ToolbarButton);
+        int newLimiter = GUILayout.SelectionGrid(_memTypeSizeLimiter, MemConst.MemTypeLimitations, MemConst.MemTypeLimitations.Length, MemStyles.ToolbarButton);
+        if (newLimiter != _memTypeSizeLimiter)
+        {
+            _memTypeSizeLimiter = newLimiter;
+            RefreshTables();
+        }
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 

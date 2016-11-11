@@ -134,7 +134,42 @@ namespace MemoryProfilerWindow
             if (_enhancedMode)
             {
                 _autoSaveForComparison = GUILayout.Toggle(_autoSaveForComparison, "Auto-Save");
+            }
 
+            if (GUILayout.Button("Save Snapshot..."))
+            {
+                if (_snapshot != null)
+                {
+                    string fileName = EditorUtility.SaveFilePanel("Save Snapshot", null, "MemorySnapshot", "memsnap");
+                    if (!string.IsNullOrEmpty(fileName))
+                    {
+                        System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                        using (Stream stream = File.Open(fileName, FileMode.Create))
+                        {
+                            bf.Serialize(stream, _snapshot);
+                        }
+                    }
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning("No snapshot to save.  Try taking a snapshot first.");
+                }
+            }
+            if (GUILayout.Button("Load Snapshot..."))
+            {
+                string fileName = EditorUtility.OpenFilePanel("Load Snapshot", null, "memsnap");
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    using (Stream stream = File.Open(fileName, FileMode.Open))
+                    {
+                        IncomingSnapshot(bf.Deserialize(stream) as PackedMemorySnapshot);
+                    }
+                }
+            }
+
+            if (_enhancedMode)
+            {
                 GUILayout.FlexibleSpace();
 
                 {
@@ -180,40 +215,6 @@ namespace MemoryProfilerWindow
                     EditorUtility.RevealInFinder(MemUtil.SnapshotsDir);
                 }
             }
-            else
-            {
-                if (GUILayout.Button("Save Snapshot..."))
-                {
-                    if (_snapshot != null)
-                    {
-                        string fileName = EditorUtility.SaveFilePanel("Save Snapshot", null, "MemorySnapshot", "memsnap");
-                        if (!string.IsNullOrEmpty(fileName))
-                        {
-                            System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                            using (Stream stream = File.Open(fileName, FileMode.Create))
-                            {
-                                bf.Serialize(stream, _snapshot);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        UnityEngine.Debug.LogWarning("No snapshot to save.  Try taking a snapshot first.");
-                    }
-                }
-                if (GUILayout.Button("Load Snapshot..."))
-                {
-                    string fileName = EditorUtility.OpenFilePanel("Load Snapshot", null, "memsnap");
-                    if (!string.IsNullOrEmpty(fileName))
-                    {
-                        System.Runtime.Serialization.Formatters.Binary.BinaryFormatter bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                        using (Stream stream = File.Open(fileName, FileMode.Open))
-                        {
-                            IncomingSnapshot(bf.Deserialize(stream) as PackedMemorySnapshot);
-                        }
-                    }
-                }
-            }
 
             GUILayout.EndHorizontal();
 
@@ -228,7 +229,8 @@ namespace MemoryProfilerWindow
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
 
-            float yoffset = MemConst.TopBarHeight + MemConst.TabHeight;
+            float TabHeight = 30;
+            float yoffset = MemConst.TopBarHeight + TabHeight;
             Rect view = new Rect(0f, yoffset, position.width - MemConst.InspectorWidth, position.height - yoffset);
 
             switch (m_selectedView)
