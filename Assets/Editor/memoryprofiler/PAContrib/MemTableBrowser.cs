@@ -31,13 +31,23 @@ public class MemObject
     public int Size = 0;
     public int RefCount = 0;
 
-    public MemObject(ThingInMemory thing)
+    public MemObject(ThingInMemory thing, CrawledMemorySnapshot unpacked)
     {
         _thing = thing;
 
         if (_thing != null)
         {
-            InstanceName = _thing.caption;
+            var mo = thing as ManagedObject;
+
+            if (mo != null && mo.typeDescription.name == "System.String")
+            {
+                InstanceName = StringTools.ReadString(unpacked.managedHeap.Find(mo.address, unpacked.virtualMachineInformation), unpacked.virtualMachineInformation);
+            }
+            else
+            {
+                InstanceName = _thing.caption;
+            }
+
             Size = _thing.size;
             RefCount = _thing.referencedBy.Length;
         }
@@ -72,9 +82,9 @@ public class MemTableBrowser
         _typeTable.AddColumn("Count", "Count", 0.15f);
         _typeTable.AddColumn("Size", "Size", 0.25f, TextAnchor.MiddleCenter, PAEditorConst.BytesFormatter);
 
-        _objectTable.AddColumn("InstanceName", "Instance Name", 0.5f, TextAnchor.MiddleLeft);
-        _objectTable.AddColumn("Size", "Size", 0.15f, TextAnchor.MiddleCenter, PAEditorConst.BytesFormatter);
-        _objectTable.AddColumn("RefCount", "Ref Count", 0.35f);
+        _objectTable.AddColumn("InstanceName", "Instance Name", 0.8f, TextAnchor.MiddleLeft);
+        _objectTable.AddColumn("Size", "Size", 0.1f, TextAnchor.MiddleCenter, PAEditorConst.BytesFormatter);
+        _objectTable.AddColumn("RefCount", "RefCount", 0.1f);
 
         // sorting
         _typeTable.SetSortParams(2, true);
@@ -110,7 +120,7 @@ public class MemTableBrowser
                 theType = _types[typeName];
             }
 
-            MemObject item = new MemObject(thingInMemory);
+            MemObject item = new MemObject(thingInMemory, _unpacked);
             theType.AddObject(item);
         }
 
