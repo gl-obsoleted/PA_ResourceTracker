@@ -5,6 +5,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEditor.MemoryProfiler;
 
+enum eShowType
+{
+    InTable,
+    InTreemap,
+}
+
 namespace MemoryProfilerWindow
 {
     using Item = Assets.Editor.Treemap.Item;

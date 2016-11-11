@@ -54,6 +54,9 @@ public class MemTableBrowser
 
     private Dictionary<string, MemType> _types = new Dictionary<string, MemType>();
 
+    private int _memTypeCategory = 0;
+    private int _memTypeSizeLimiter = 0;
+
     public MemTableBrowser(EditorWindow hostWindow)
     {
         _hostWindow = hostWindow;
@@ -119,11 +122,24 @@ public class MemTableBrowser
         int border = MemConst.TableBorder;
         float split = MemConst.SplitterRatio;
 
-        GUILayout.BeginArea(r, MemStyles.background);
+        GUILayout.BeginArea(r, MemStyles.Background);
+
+        int toolbarHeight = 30;
+        GUILayout.BeginHorizontal(MemStyles.Toolbar);
+        GUILayout.Label("Category: ");
+        _memTypeCategory = GUILayout.SelectionGrid(_memTypeCategory, MemConst.MemTypeCategories, MemConst.MemTypeCategories.Length, MemStyles.ToolbarButton);
+        GUILayout.Space(50);
+        GUILayout.Label("Size Limit: ");
+        _memTypeSizeLimiter = GUILayout.SelectionGrid(_memTypeSizeLimiter, MemConst.MemTypeLimitations, MemConst.MemTypeLimitations.Length, MemStyles.ToolbarButton);
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
+
+        int startY = toolbarHeight + border;
+        int height = (int)(r.height - border * 2 - toolbarHeight);
         if (_typeTable != null)
-            _typeTable.Draw(new Rect(border, border, (int)(r.width * split - border * 1.5f), r.height - border * 2));
+            _typeTable.Draw(new Rect(border, startY, (int)(r.width * split - border * 1.5f), height));
         if (_objectTable != null)
-            _objectTable.Draw(new Rect((int)(r.width * split + border * 0.5f), border, (int)r.width * (1.0f - split) - border * 1.5f, (int)r.height - border * 2));
+            _objectTable.Draw(new Rect((int)(r.width * split + border * 0.5f), startY, (int)r.width * (1.0f - split) - border * 1.5f, height));
         GUILayout.EndArea();
     }
 
