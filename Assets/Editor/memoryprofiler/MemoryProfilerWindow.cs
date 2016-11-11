@@ -325,11 +325,20 @@ namespace MemoryProfilerWindow
         void IncomingSnapshot(PackedMemorySnapshot snapshot)
         {
             _snapshot = snapshot;
+
+            MemUtil.LoadSnapshotProgress(0.01f, "creating Crawler");
+
             _packedCrawled = new Crawler().Crawl(_snapshot);
+            MemUtil.LoadSnapshotProgress(0.7f, "unpacking");
+
             _unpackedCrawl = CrawlDataUnpacker.Unpack(_packedCrawled);
+            MemUtil.LoadSnapshotProgress(0.8f, "creating Inspector");
+
             _inspector = new Inspector(this, _unpackedCrawl, _snapshot);
+            MemUtil.LoadSnapshotProgress(0.9f, "refreshing view");
 
             RefreshCurrentView();
+            MemUtil.LoadSnapshotProgress(1.0f, "done");
         }
 
         void RefreshSnapshotList()

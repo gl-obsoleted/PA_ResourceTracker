@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEditor;
 using UnityEditor.MemoryProfiler;
 using UnityEngine;
 
@@ -142,5 +143,13 @@ public class MemUtil
             default:
                 return false;
         }
+    }
+
+    public static void LoadSnapshotProgress(float progress, string tag)
+    {
+        EditorUtility.DisplayProgressBar("Loading in progress, please wait...", string.Format("{0} - {1}%", tag, (int)(progress * 100.0f)), progress);
+
+        if (progress >= 1.0f)
+            EditorUtility.ClearProgressBar();
     }
 }

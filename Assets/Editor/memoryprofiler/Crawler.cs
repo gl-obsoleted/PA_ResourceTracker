@@ -19,23 +19,32 @@ namespace MemoryProfilerWindow
             _virtualMachineInformation = input.virtualMachineInformation;
             _typeDescriptions = input.typeDescriptions;
 
+            MemUtil.LoadSnapshotProgress(0.1f, "adding connections");
             var result = new PackedCrawlerData(input);
-
             var managedObjects = new List<PackedManagedObject>(result.startIndices.OfFirstManagedObject * 3);
 
             var connections = new List<Connection>(managedObjects.Count * 3);
             //we will be adding a lot of connections, but the input format also already had connections. (nativeobject->nativeobject and nativeobject->gchandle). we'll add ours to the ones already there.
             connections.AddRange(input.connections);
 
+            MemUtil.LoadSnapshotProgress(0.2f, "CrawlPointer");
             for (int i = 0; i != input.gcHandles.Length; i++)
+            {
                 CrawlPointer(input, result.startIndices, input.gcHandles[i].target, result.startIndices.OfFirstGCHandle + i, connections, managedObjects);
+                MemUtil.LoadSnapshotProgress(0.2f + 0.2f * ((float)i / (float)input.gcHandles.Length), 
+                    string.Format("CrawlPointer({0}/{1})", i, input.gcHandles.Length));
+            }
 
+            MemUtil.LoadSnapshotProgress(0.4f, "CrawlRawObjectData");
             for (int i = 0; i < result.typesWithStaticFields.Length; i++)
             {
                 var typeDescription = result.typesWithStaticFields[i];
                 CrawlRawObjectData(input, result.startIndices, new BytesAndOffset {bytes = typeDescription.staticFieldBytes, offset = 0, pointerSize = _virtualMachineInformation.pointerSize}, typeDescription, true, result.startIndices.OfFirstStaticFields + i, connections, managedObjects);
+                MemUtil.LoadSnapshotProgress(0.4f + 0.2f * ((float)i / (float)result.typesWithStaticFields.Length),
+                    string.Format("CrawlRawObjectData({0}/{1})", i, result.typesWithStaticFields.Length));
             }
 
+            MemUtil.LoadSnapshotProgress(0.6f, "composing result");
             result.managedObjects = managedObjects.ToArray();
             connections.AddRange(AddManagedToNativeConnectionsAndRestoreObjectHeaders(input, result.startIndices, result));
             result.connections = connections.ToArray();
