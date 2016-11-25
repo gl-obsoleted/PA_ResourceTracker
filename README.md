@@ -26,10 +26,13 @@ An enhanced fork of [memoryprofiler](https://bitbucket.org/Unity-Technologies/me
 ![4](/_img/4.png)
 
 
-## Minor fixes
+## Changes
 
-- namespace inconsistencies fixed
-
+- :star: [v1.1.0 released](https://github.com/PerfAssist/ResourceTracker/releases/tag/v1.1.0) [2016-11-25]
+    + :triangular_flag_on_post: add memory object browser (two-lists table view)
+        * :small_orange_diamond: add realtime text searching for mem-object browser (7134431409c0f962dd4e07de94c71af6df15bc4f)
+        * :small_orange_diamond: add navigation buttons (back & forward) (754d4a3f57abac015db65c4effe350d2188772c1)
+        * :small_orange_diamond: add loading progress indicators (2ee1ec5f8b35d828a20c53d1bf958a380bb2f292)
 
 
 
