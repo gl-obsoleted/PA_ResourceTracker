@@ -28,6 +28,10 @@ An enhanced fork of [memoryprofiler](https://bitbucket.org/Unity-Technologies/me
 
 ## Changes
 
+- :paperclip: [v1.1.1 released](https://github.com/PerfAssist/ResourceTracker/releases/tag/v1.1.1) [2016-11-25]
+    + merged back several fixes
+        * resources moved into editor specific folder (4fdf39feabbfeb7a0c10158f31e575ca71f6670c)
+        * fix the selection in search result list (5017afe200c12bb5bef65f1f6b5c967800f8d483)
 - :star: [v1.1.0 released](https://github.com/PerfAssist/ResourceTracker/releases/tag/v1.1.0) [2016-11-25]
     + :triangular_flag_on_post: add memory object browser (two-lists table view)
         * :small_orange_diamond: add realtime text searching for mem-object browser (7134431409c0f962dd4e07de94c71af6df15bc4f)
