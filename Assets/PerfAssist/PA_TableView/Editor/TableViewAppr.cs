@@ -101,7 +101,7 @@ public class TableViewAppr
         {
             if (_styleAdditiveCell == null)
             {
-                _styleAdditiveCell = new GUIStyle(EditorStyles.whiteBoldLabel);
+                _styleAdditiveCell = new GUIStyle(EditorStyles.whiteLabel);
                 _styleAdditiveCell.normal.background = PAEditorUtil.getColorTexture(new Color(0.5f, 0.5f, 0.5f, 0.2f));
                 _styleAdditiveCell.normal.textColor = Color.green;
             }
@@ -117,7 +117,7 @@ public class TableViewAppr
         {
             if (_styleNegativeCell == null)
             {
-                _styleNegativeCell = new GUIStyle(EditorStyles.whiteBoldLabel);
+                _styleNegativeCell = new GUIStyle(EditorStyles.whiteLabel);
                 _styleNegativeCell.normal.background = PAEditorUtil.getColorTexture(new Color(0.5f, 0.5f, 0.5f, 0.2f));
                 _styleNegativeCell.normal.textColor = Color.red;
             }
