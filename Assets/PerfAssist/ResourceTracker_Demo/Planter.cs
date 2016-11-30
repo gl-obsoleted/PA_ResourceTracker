@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class Planter : MonoBehaviour {
 
@@ -46,6 +47,19 @@ public class Planter : MonoBehaviour {
         if (GUILayout.Button("Resources Cleanup"))
         {
             Resources.UnloadUnusedAssets();
+        }
+
+        if (GUILayout.Button("Change Scene"))
+        {
+            if (SceneManager.GetActiveScene().name.Equals("main"))
+            {
+                SceneManager.LoadScene("main2");
+            }
+            else
+            {
+                SceneManager.LoadScene("main");
+            }
+
         }
         GUILayout.EndVertical();
     }

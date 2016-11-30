@@ -4,9 +4,15 @@ using System.Collections.Generic;
 using System;
 using UnityEditor;
 
+public struct sDiffType
+{
+    public static readonly string AdditiveType=" (added)";
+    public static readonly string NegativeType=" (removed)";
+    public static readonly string ModificationType=" (modified)";
+}
+
 public partial class TableView 
 {
-
     private void DrawTitle(float width)
     {
         for (int i = 0; i < m_descArray.Count; i++)
@@ -67,17 +73,27 @@ public partial class TableView
             m_hostWindow.Repaint();
         }
 
+        var desc = m_descArray[col];
+        var text = desc.FormatObject(obj);
+
         // note that the 'selected-style' assignment below should be isolated from the if-conditional statement above
         // since the above if is a one-time event, on the contrary, the 'selected-style' assignment below should be done every time in the drawing process
         if (m_selectedCol == col && m_selected == obj)
         {
             style = _appearance.Style_SelectedCell;
         }
-
-        var desc = m_descArray[col];
+        else
+        {
+            if (text.Contains(sDiffType.AdditiveType))
+            {
+                style = _appearance.Style_AdditiveCell;
+            }
+            else if (text.Contains(sDiffType.NegativeType))
+            {
+                style = _appearance.Style_NegativeCell;
+            }
+        }
         style.alignment = desc.Alignment;
-
-        var text = desc.FormatObject(obj);
         GUI.Label(rect, new GUIContent(text, text), style);
     }
 

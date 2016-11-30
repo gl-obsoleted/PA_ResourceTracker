@@ -30,6 +30,7 @@ public class TableViewAppr
         _styleTitle.normal.textColor = selected ? Color.yellow : Color.white;
         return _styleTitle;
     }
+
     private GUIStyle _styleTitle;
     private Texture2D _titleOrdinary;
     private Texture2D _titleSelected;
@@ -93,4 +94,36 @@ public class TableViewAppr
         }
     }
     private GUIStyle _styleSelectedCell;
+
+    public GUIStyle Style_AdditiveCell
+    {
+        get
+        {
+            if (_styleAdditiveCell == null)
+            {
+                _styleAdditiveCell = new GUIStyle(EditorStyles.whiteBoldLabel);
+                _styleAdditiveCell.normal.background = PAEditorUtil.getColorTexture(new Color(0.5f, 0.5f, 0.5f, 0.2f));
+                _styleAdditiveCell.normal.textColor = Color.green;
+            }
+            return _styleAdditiveCell;
+        }
+    }
+    private GUIStyle _styleAdditiveCell;
+
+
+    public GUIStyle Style_NegativeCell
+    {
+        get
+        {
+            if (_styleNegativeCell == null)
+            {
+                _styleNegativeCell = new GUIStyle(EditorStyles.whiteBoldLabel);
+                _styleNegativeCell.normal.background = PAEditorUtil.getColorTexture(new Color(0.5f, 0.5f, 0.5f, 0.2f));
+                _styleNegativeCell.normal.textColor = Color.red;
+            }
+            return _styleNegativeCell;
+        }
+    }
+    private GUIStyle _styleNegativeCell;
+
 }
