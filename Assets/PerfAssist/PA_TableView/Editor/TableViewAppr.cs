@@ -126,4 +126,20 @@ public class TableViewAppr
     }
     private GUIStyle _styleNegativeCell;
 
+
+    public GUIStyle Style_ModifiedCell
+    {
+        get
+        {
+            if (_styleModifiedCell == null)
+            {
+                _styleModifiedCell = new GUIStyle(EditorStyles.whiteLabel);
+                _styleModifiedCell.normal.background = PAEditorUtil.getColorTexture(new Color(0.5f, 0.5f, 0.5f, 0.2f));
+                _styleModifiedCell.normal.textColor = Color.cyan;
+            }
+            return _styleModifiedCell;
+        }
+    }
+    private GUIStyle _styleModifiedCell;
+
 }

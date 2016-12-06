@@ -92,6 +92,10 @@ public partial class TableView
             {
                 style = _appearance.Style_NegativeCell;
             }
+            else if (text.Contains(sDiffType.ModificationType))
+            {
+                style = _appearance.Style_ModifiedCell;
+            }
         }
         style.alignment = desc.Alignment;
         GUI.Label(rect, new GUIContent(text, text), style);
