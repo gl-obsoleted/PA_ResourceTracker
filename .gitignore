@@ -2,5 +2,4 @@
 /Temp
 /*.csproj
 /*.sln
-/*.suo
-/.vs/ResourceTracker/v14/*.suo
+**.suo
