@@ -4,13 +4,6 @@ using System.Collections.Generic;
 using System;
 using UnityEditor;
 
-public struct sDiffType
-{
-    public static readonly string AdditiveType=" (added)";
-    public static readonly string NegativeType=" (removed)";
-    public static readonly string ModificationType=" (modified)";
-}
-
 public partial class TableView 
 {
     private void DrawTitle(float width)
@@ -57,6 +50,13 @@ public partial class TableView
             style = _appearance.Style_Selected;
         }
 
+        Color specialColor;
+        if (m_specialTextColors != null &&
+            m_specialTextColors.TryGetValue(obj, out specialColor))
+        {
+            style.normal.textColor = specialColor;
+        }
+
         for (int i = 0; i < m_descArray.Count; i++)
             DrawLineCol(pos, i, width, obj, style, selectionHappens);
     }
@@ -82,21 +82,7 @@ public partial class TableView
         {
             style = _appearance.Style_SelectedCell;
         }
-        else
-        {
-            if (text.Contains(sDiffType.AdditiveType))
-            {
-                style = _appearance.Style_AdditiveCell;
-            }
-            else if (text.Contains(sDiffType.NegativeType))
-            {
-                style = _appearance.Style_NegativeCell;
-            }
-            else if (text.Contains(sDiffType.ModificationType))
-            {
-                style = _appearance.Style_ModifiedCell;
-            }
-        }
+
         style.alignment = desc.Alignment;
         GUI.Label(rect, new GUIContent(text, text), style);
     }
@@ -134,6 +120,9 @@ public partial class TableView
     Type m_itemType = null;
     EditorWindow m_hostWindow = null;
     List<object> m_lines = new List<object>();
+
     object m_selected = null;
     int m_selectedCol = -1;
+
+    Dictionary<object, Color> m_specialTextColors;
 }
