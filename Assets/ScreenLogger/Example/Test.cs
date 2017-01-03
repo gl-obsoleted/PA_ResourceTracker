@@ -28,7 +28,7 @@ public class Test : MonoBehaviour
         if (timeout <= 0)
         {
             Debug.Log("Loading new scene...");
-            Application.LoadLevel(1);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(1);
         }
     }
 
