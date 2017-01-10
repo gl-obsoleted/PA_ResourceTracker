@@ -49,18 +49,6 @@ public class Planter : MonoBehaviour {
             Resources.UnloadUnusedAssets();
         }
 
-        if (GUILayout.Button("Change Scene"))
-        {
-            if (SceneManager.GetActiveScene().name.Equals("main"))
-            {
-                SceneManager.LoadScene("main2");
-            }
-            else
-            {
-                SceneManager.LoadScene("main");
-            }
-
-        }
         GUILayout.EndVertical();
     }
 
