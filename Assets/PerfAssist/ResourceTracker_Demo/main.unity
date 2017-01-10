@@ -261,7 +261,7 @@ GameObject:
   - 23: {fileID: 442355798}
   - 114: {fileID: 442355797}
   m_Layer: 0
-  m_Name: UsServer
+  m_Name: ServerAndTrackerLauncher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
