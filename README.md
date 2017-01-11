@@ -1,6 +1,6 @@
 # ResourceTracker
 
-An enhanced fork of [memoryprofiler](https://bitbucket.org/Unity-Technologies/memoryprofiler).
+An enhanced fork of [memoryprofiler](https://bitbucket.org/Unity-Technologies/memoryprofiler) with diff and searching supported.
 
 ## Additional features (with all original memoryprofiler functionalities included)
 

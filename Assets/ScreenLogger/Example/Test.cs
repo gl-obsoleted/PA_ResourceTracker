@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class Test : MonoBehaviour
 {
@@ -28,8 +29,7 @@ public class Test : MonoBehaviour
         if (timeout <= 0)
         {
             Debug.Log("Loading new scene...");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(1);
-        }
+            SceneManager.LoadScene(1);        }
     }
 
     void TestMessageTypes()
